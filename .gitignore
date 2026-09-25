@@ -1,0 +1,30 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Hardhat
+cache/
+artifacts/
+typechain/
+typechain-types/
+coverage/
+coverage.json
+
+# React/Vite Frontend
+frontend/dist/
+frontend/build/
+.eslintcache
+
+# Environment variables
+.env
+
+# System & IDEs
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
