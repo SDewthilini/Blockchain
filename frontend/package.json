@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
     "typescript": "~6.0.2",
     "vite": "^8.3.0"
   },
@@ -16,6 +17,8 @@
     "ethers": "^6.17.0",
     "html5-qrcode": "^2.3.8",
     "qrcode.react": "^4.2.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "react-router-dom": "^7.18.4"
   }
 }

@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { ethers } from 'ethers';
 import contractData from '../contractData.json';
-import './TransferPage.css';
+
+// Default to Hardhat Account #0
+const DEFAULT_PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 
 export default function TransferPage() {
   const [formData, setFormData] = useState({
     tokenId: '',
-    newOwner: ''
+    newOwner: '',
+    privateKey: DEFAULT_PRIVATE_KEY
   });
   const [status, setStatus] = useState('');
 
@@ -16,15 +19,12 @@ export default function TransferPage() {
 
   const handleTransfer = async (e) => {
     e.preventDefault();
-    if (!window.ethereum) {
-      alert("Please install MetaMask to use this feature.");
-      return;
-    }
     
     try {
-      setStatus("Connecting to wallet...");
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      setStatus("Initializing built-in wallet...");
+      
+      const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+      const signer = new ethers.Wallet(formData.privateKey, provider);
       const currentAddress = await signer.getAddress();
       
       const contract = new ethers.Contract(
@@ -33,7 +33,7 @@ export default function TransferPage() {
         signer
       );
 
-      setStatus("Waiting for transaction confirmation...");
+      setStatus(`Submitting transaction from ${currentAddress.substring(0, 8)}...`);
       
       const tx = await contract.transferFrom(
         currentAddress,
@@ -45,7 +45,7 @@ export default function TransferPage() {
       await tx.wait();
       
       setStatus("Transfer successful!");
-      setFormData({ tokenId: '', newOwner: '' });
+      setFormData({ ...formData, tokenId: '', newOwner: '' });
       
     } catch (error) {
       console.error(error);
@@ -58,9 +58,23 @@ export default function TransferPage() {
       <h2>Transfer Ownership</h2>
       <p>Transfer product ownership to a new wallet address (e.g., when selling).</p>
       
+      <div style={{ padding: '10px', backgroundColor: '#e8f4fd', borderRadius: '4px', marginBottom: '15px', fontSize: '0.9rem' }}>
+        <strong>Demo Mode:</strong> Enter the current owner's private key to sign the transfer transaction (No MetaMask required).
+      </div>
+      
       <form onSubmit={handleTransfer} className="form-card">
         <div className="form-group">
-          <label>Token ID</label>
+          <label>Current Owner's Private Key</label>
+          <input 
+            type="password"
+            name="privateKey" 
+            value={formData.privateKey} 
+            onChange={handleChange} 
+            required 
+          />
+        </div>
+        <div className="form-group">
+          <label>Token ID to Transfer</label>
           <input 
             type="number"
             name="tokenId" 
@@ -76,7 +90,7 @@ export default function TransferPage() {
             name="newOwner" 
             value={formData.newOwner} 
             onChange={handleChange} 
-            placeholder="e.g. 0x123..."
+            placeholder="e.g. 0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
             required 
           />
         </div>

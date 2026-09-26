@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import contractData from '../contractData.json';
-import './VerificationPage.css';
 
 export default function VerificationPage() {
   const [tokenId, setTokenId] = useState('');

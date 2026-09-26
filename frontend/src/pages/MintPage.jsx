@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { ethers } from 'ethers';
 import { QRCodeSVG } from 'qrcode.react';
 import contractData from '../contractData.json';
-import './MintPage.css';
+
+// Hardhat Account #0 (The deployer/manufacturer)
+const MANUFACTURER_PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 
 export default function MintPage() {
   const [formData, setFormData] = useState({
@@ -19,15 +21,14 @@ export default function MintPage() {
 
   const handleMint = async (e) => {
     e.preventDefault();
-    if (!window.ethereum) {
-      alert("Please install MetaMask to use this feature.");
-      return;
-    }
     
     try {
-      setStatus("Connecting to wallet...");
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      setStatus("Initializing built-in manufacturer wallet...");
+      
+      // Connect directly to local Hardhat node
+      const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+      // Use the hardcoded private key instead of MetaMask
+      const signer = new ethers.Wallet(MANUFACTURER_PRIVATE_KEY, provider);
       
       const contract = new ethers.Contract(
         contractData.address,
@@ -35,7 +36,7 @@ export default function MintPage() {
         signer
       );
 
-      setStatus("Waiting for transaction confirmation...");
+      setStatus("Submitting transaction to the blockchain...");
       const address = await signer.getAddress();
       
       const tx = await contract.mintProduct(
@@ -82,6 +83,10 @@ export default function MintPage() {
     <div className="page-container">
       <h2>Manufacturer Dashboard</h2>
       <p>Mint a new physical product on the blockchain to verify its authenticity.</p>
+      
+      <div style={{ padding: '10px', backgroundColor: '#e8f4fd', borderRadius: '4px', marginBottom: '15px', fontSize: '0.9rem' }}>
+        <strong>Demo Mode:</strong> Using built-in Manufacturer Wallet (No MetaMask required).
+      </div>
       
       <form onSubmit={handleMint} className="form-card">
         <div className="form-group">
